@@ -1,0 +1,30 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;700&display=swap');
+
+.recipes-section {
+    z-index: 2;
+}
+
+.recipes-header {
+    z-index: 1;
+}
+
+.filter-bar {
+    z-index: 4;
+
+}
+
+.recipes-container {
+    z-index: -1;
+}
+
+.option-selected-container {
+    z-index: 3;
+}
+
+.rounded-hover:hover {
+    border-bottom-left-radius: 0.5rem !important;
+    border-bottom-right-radius: 0.5rem !important;
+}
