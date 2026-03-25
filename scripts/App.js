@@ -194,21 +194,87 @@ class App {
     this.handleResetInputListener(this.$mainCrossButton, this.$mainSearchInput)
   }
 
+  /**
+   * Filter recipes based on the main search input using native loops (for/while)
+   * Searches through recipe name, description and ingredients
+   */
   filterRecipesBySearch () {
-    const escapedInput = App.escapeRegExp(this.mainInputValue)
-    const regex = new RegExp(escapedInput, 'i')
+    const searchTerm = this.mainInputValue.toLowerCase()
+    this.filteredRecipesList = []
 
-    this.filteredRecipesList = this.recipesList.filter((recipe) => {
-      const matchesSearch = this.mainInputValue.length < 3 || regex.test(recipe._name) || regex.test(recipe._description) || recipe._ingredients.some(ingredient => regex.test(ingredient.ingredient))
+    for (let i = 0; i < this.recipesList.length; i++) {
+      const recipe = this.recipesList[i]
+      let matchesSearch = true
 
-      const matchesFilters = this.selectedOptionsList.every((selectedOption) =>
-        recipe.ingredientsList.includes(selectedOption) ||
-          recipe.appliance.includes(selectedOption) ||
-          recipe.utensils.includes(selectedOption)
-      )
+      // Only apply search filter if input is 3+ characters
+      if (searchTerm.length >= 3) {
+        matchesSearch = false
+        const recipeName = recipe._name.toLowerCase()
+        const recipeDescription = recipe._description.toLowerCase()
 
-      return matchesSearch && matchesFilters
-    })
+        // Check recipe name
+        if (recipeName.indexOf(searchTerm) !== -1) {
+          matchesSearch = true
+        }
+
+        // Check recipe description
+        if (!matchesSearch && recipeDescription.indexOf(searchTerm) !== -1) {
+          matchesSearch = true
+        }
+
+        // Check ingredients
+        if (!matchesSearch) {
+          const ingredients = recipe._ingredients
+          for (let j = 0; j < ingredients.length; j++) {
+            if (ingredients[j].ingredient.toLowerCase().indexOf(searchTerm) !== -1) {
+              matchesSearch = true
+              break
+            }
+          }
+        }
+      }
+
+      // Check selected filters (tags)
+      let matchesFilters = true
+      for (let k = 0; k < this.selectedOptionsList.length; k++) {
+        const selectedOption = this.selectedOptionsList[k]
+        let optionFound = false
+
+        // Check in ingredients
+        const ingredientsList = recipe.ingredientsList
+        for (let l = 0; l < ingredientsList.length; l++) {
+          if (ingredientsList[l] === selectedOption) {
+            optionFound = true
+            break
+          }
+        }
+
+        // Check in appliance
+        if (!optionFound && recipe.appliance.indexOf(selectedOption) !== -1) {
+          optionFound = true
+        }
+
+        // Check in utensils
+        if (!optionFound) {
+          const utensils = recipe.utensils
+          for (let m = 0; m < utensils.length; m++) {
+            if (utensils[m] === selectedOption) {
+              optionFound = true
+              break
+            }
+          }
+        }
+
+        if (!optionFound) {
+          matchesFilters = false
+          break
+        }
+      }
+
+      if (matchesSearch && matchesFilters) {
+        this.filteredRecipesList.push(recipe)
+      }
+    }
   }
 
   displayNoRecipesMessage () {
@@ -318,21 +384,12 @@ class App {
     })
   }
 
+  /**
+   * Filter recipes based on selected options (tags) combined with main search
+   * Uses the same native loop approach as filterRecipesBySearch
+   */
   filterRecipesByOption () {
-    const inputRegex = new RegExp(App.escapeRegExp(this.mainInputValue), 'i')
-
-    this.filteredRecipesList = this.recipesList.filter((recipe) => {
-      const matchesSearch = this.mainInputValue.length < 3 || inputRegex.test(recipe._name) || inputRegex.test(recipe._description) || recipe._ingredients.some(ingredient => inputRegex.test(ingredient.ingredient))
-
-      const matchesFilters = this.selectedOptionsList.every((selectedOption) => {
-        const optionRegex = new RegExp(selectedOption.trim(), 'i')
-        return recipe.ingredientsList.some(ingredient => optionRegex.test(ingredient)) ||
-          optionRegex.test(recipe.appliance) ||
-          recipe.utensils.some(utensil => optionRegex.test(utensil))
-      })
-
-      return matchesSearch && matchesFilters
-    })
+    this.filterRecipesBySearch()
   }
 
   styleLastOptionButton ($optionsButtons) {
