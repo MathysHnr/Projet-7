@@ -1,5 +1,25 @@
 class App {
   /**
+   * Escape special regex characters from user input to prevent ReDoS and injection
+   * @param {string} string - The string to escape
+   * @returns {string} The escaped string safe for use in RegExp
+   */
+  static escapeRegExp (string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  }
+
+  /**
+   * Sanitize user input to prevent HTML/script injection
+   * @param {string} input - The raw user input
+   * @returns {string} The sanitized input
+   */
+  static sanitizeInput (input) {
+    const div = document.createElement('div')
+    div.textContent = input
+    return div.innerHTML
+  }
+
+  /**
    * Create an instance of App
    * @constructor
    * @param {Object} recipeFactory
@@ -81,9 +101,7 @@ class App {
     })
 
     this.optionsList.push(options)
-    console.log(this.optionsList)
     this.optionsList = this.optionsList.flat()
-    console.log(this.optionsList)
   }
 
   // Generic method to call the methods to update the view
@@ -177,7 +195,8 @@ class App {
   }
 
   filterRecipesBySearch () {
-    const regex = new RegExp(this.mainInputValue, 'i')
+    const escapedInput = App.escapeRegExp(this.mainInputValue)
+    const regex = new RegExp(escapedInput, 'i')
 
     this.filteredRecipesList = this.recipesList.filter((recipe) => {
       const matchesSearch = this.mainInputValue.length < 3 || regex.test(recipe._name) || regex.test(recipe._description) || recipe._ingredients.some(ingredient => regex.test(ingredient.ingredient))
@@ -202,7 +221,7 @@ class App {
     }
 
     $noRecipesElement.classList.remove('hidden')
-    const firstLetter = this.mainInputValue[0].toLowerCase()
+    const firstLetter = App.escapeRegExp(this.mainInputValue[0].toLowerCase())
     const regex = new RegExp(`^${firstLetter}`, 'i')
 
     const suggestions = this.recipesList
@@ -211,10 +230,11 @@ class App {
       .map(recipe => recipe.name.toLowerCase())
       .join('", "')
 
+    const sanitizedValue = App.sanitizeInput(this.mainInputValue)
     if (suggestions) {
-      $noRecipesMessage.textContent = `Aucune recette ne contient "${this.mainInputValue}".\nVous pouvez chercher "${suggestions}".`
+      $noRecipesMessage.textContent = `Aucune recette ne contient "${sanitizedValue}".\nVous pouvez chercher "${suggestions}".`
     } else {
-      $noRecipesMessage.textContent = `Aucune recette ne contient "${this.mainInputValue}". Essayez une autre recherche.`
+      $noRecipesMessage.textContent = `Aucune recette ne contient "${sanitizedValue}". Essayez une autre recherche.`
     }
 
     $noRecipesMessage.classList.add('whitespace-pre-line')
@@ -258,8 +278,8 @@ class App {
     // Use a ternary operator to choose the options list
     const optionsList = this.updatedOptionsList.length > 0 ? this.updatedOptionsList : this.optionsList
 
-    // Create a regex from the user's input
-    const regex = new RegExp(input, 'i')
+    // Create a regex from the user's input (escaped to prevent injection)
+    const regex = new RegExp(App.escapeRegExp(input), 'i')
 
     // Filter the options that match the user's search and return them
     const currentSearchOptionsList = optionsList
@@ -299,7 +319,7 @@ class App {
   }
 
   filterRecipesByOption () {
-    const inputRegex = new RegExp(this.mainInputValue, 'i')
+    const inputRegex = new RegExp(App.escapeRegExp(this.mainInputValue), 'i')
 
     this.filteredRecipesList = this.recipesList.filter((recipe) => {
       const matchesSearch = this.mainInputValue.length < 3 || inputRegex.test(recipe._name) || inputRegex.test(recipe._description) || recipe._ingredients.some(ingredient => inputRegex.test(ingredient.ingredient))

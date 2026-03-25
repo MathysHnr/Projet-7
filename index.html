@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./src/style.css">
-    <link rel="shortcut icon" href="./assets/icons/dish.png" type="image/x-icon">
+    <link rel="icon" href="./assets/icons/dish.png" type="image/png">
     <title>Les petits plats</title>
 </head>
 
@@ -21,9 +21,12 @@
                 <h1 class="text-yellow text-xl md:text-3xl lg:text-4.5xl leading-loose md:leading-normal lg:leading-relaxed text-center mx-12 xl:mx-69 md:mx-20 lg:px-12 py-3 font-anton uppercase">
                     Cherchez parmi plus de 1500 recettes du quotidien, simples et délicieuses</h1>
                 <nav class="search-bar  relative w-auto h-18 mx-2 md:mx-24 xl:mx-60 group">
+                    <label for="main-search-input" class="absolute w-1 h-1 p-0 m-[-1px] overflow-hidden whitespace-nowrap border-0">Rechercher une recette</label>
                     <input type="text" id="main-search-input"
                         class="font-manrope w-full h-full pl-9 rounded-md focus:outline-none"
-                        placeholder="Rechercher une recette, un ingrédient, ...">
+                        placeholder="Rechercher une recette, un ingrédient, ..."
+                        aria-label="Rechercher une recette, un ingrédient"
+                        maxlength="50">
                     <button aria-label="Close" id="main-cross-button" class="absolute top-5 right-16 ">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" id="main-cross-icon"
                             class="hidden w-8 h-8 stroke-[#7A7A7A] fill-[#7A7A7A] stroke-0.5">
